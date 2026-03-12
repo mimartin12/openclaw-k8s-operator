@@ -2300,6 +2300,14 @@ func NormalizeStatefulSet(sts *appsv1.StatefulSet) {
 	for i := range spec.Containers {
 		normalizeContainer(&spec.Containers[i])
 	}
+
+	// K8s defaults VolumeMode to Filesystem on VolumeClaimTemplates
+	filesystemMode := corev1.PersistentVolumeFilesystem
+	for i := range sts.Spec.VolumeClaimTemplates {
+		if sts.Spec.VolumeClaimTemplates[i].Spec.VolumeMode == nil {
+			sts.Spec.VolumeClaimTemplates[i].Spec.VolumeMode = &filesystemMode
+		}
+	}
 }
 
 // normalizeContainer applies K8s admission defaults to a single container.
