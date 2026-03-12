@@ -98,6 +98,7 @@ func BuildStatefulSet(instance *openclawv1alpha1.OpenClawInstance, gatewayTokenS
 	return sts
 }
 
+// buildPodAnnotations builds the pod annotations for the pod template
 func buildPodAnnotations(instance *openclawv1alpha1.OpenClawInstance) map[string]string {
 	annotations := make(map[string]string, len(instance.Spec.PodAnnotations)+1)
 	for k, v := range instance.Spec.PodAnnotations {
