@@ -109,10 +109,15 @@ func (r *OpenClawInstanceReconciler) getS3Credentials(ctx context.Context) (*s3C
 	}
 
 	// S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are optional.
-	// When omitted, EnvAuth is set so rclone uses the provider's credential chain
+	// When both are omitted, EnvAuth is set so rclone uses the provider's credential chain
 	// (e.g., AWS SDK chain for IRSA/Pod Identity, GCS Workload Identity).
 	keyID := string(secret.Data["S3_ACCESS_KEY_ID"])
 	appKey := string(secret.Data["S3_SECRET_ACCESS_KEY"])
+
+	// Validate: either both must be set or both must be empty
+	if (keyID == "") != (appKey == "") {
+		return nil, fmt.Errorf("S3 credentials secret must set both S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY, or omit both for workload identity (env-auth)")
+	}
 	envAuth := keyID == "" && appKey == ""
 
 	// S3_REGION is optional - only needed for providers with custom regions (e.g., MinIO)
